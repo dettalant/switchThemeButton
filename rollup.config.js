@@ -11,6 +11,7 @@ const scriptArgs = {
 
 const bannerComment = `/*!
  *   ${scriptArgs.name}.js
+ * See {@link ${scriptArgs.repoUrl}}
  *
  * @author dettalant
  * @version v${scriptArgs.version}
