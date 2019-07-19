@@ -3,7 +3,7 @@
  * See {@link https://github.com/dettalant/switchThemeButton}
  *
  * @author dettalant
- * @version v0.1.1
+ * @version v0.1.2
  * @license MIT License
  */
 var switchThemeButton = (function (exports) {
