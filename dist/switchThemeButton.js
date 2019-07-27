@@ -3,7 +3,7 @@
  * See {@link https://github.com/dettalant/switchThemeButton}
  *
  * @author dettalant
- * @version v0.1.2
+ * @version v0.1.3
  * @license MIT License
  */
 var switchThemeButton = (function (exports) {
@@ -95,7 +95,7 @@ var switchThemeButton = (function (exports) {
           // localStorageに有効な値が登録されていた場合
           var savedThemeIdx = this.themeNameArray.indexOf(savedCurrentThemeName);
           if (savedThemeIdx !== -1) {
-              // 保存テーマ名がテーマ名配列に登録されているか確認して処理を進める
+              // 保存テーマ名がテーマ名配列に登録されていた場合
               // 選択中テーマ番号を変更
               this.currentThemeIdx = savedThemeIdx;
               // いったん全てのテーマ名を除去
@@ -103,6 +103,11 @@ var switchThemeButton = (function (exports) {
               // 選択中のテーマ名をbodyクラス名に追加する
               document.body.classList.add(this.currentThemeName);
               return;
+          }
+          else {
+              // 保存中テーマ名がテーマ名配列に登録されていなかった場合
+              // localStorageの保存情報を削除
+              window.localStorage.setItem(LOCALSTORAGE_CURRENT_THEME_KEY, "");
           }
       }
       // 保存テーマ名がなかった、または有効な値ではなかった際の処理

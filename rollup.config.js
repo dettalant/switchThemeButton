@@ -41,7 +41,7 @@ export default {
   input: "./src/index.ts",
   output: {
     file: fileName + ".js",
-    format: "iife",
+    format: "umd",
     name: scriptArgs.name,
     banner: bannerComment,
   },
