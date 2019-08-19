@@ -8,4 +8,10 @@ export interface InitArgs {
   // テーマ変更イベントを紐付けるHTMLElement
   // 複数要素には非対応
   buttonEl: HTMLElement | null;
+  // カスタムテーマボタンHTMLElement
+  customButtonEl: HTMLElement | null;
+  buttonCallback: Function;
+  customButtonCallback: Function;
+  // カスタムテーマ機能の初期値を設定する
+  isDefaultCustomTheme: boolean
 }
