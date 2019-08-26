@@ -3,7 +3,7 @@
  * See {@link https://github.com/dettalant/switchThemeButton}
  *
  * @author dettalant
- * @version v0.2.0
+ * @version v0.2.1
  * @license MIT License
  */
 var switchThemeButton = (function () {
@@ -27,6 +27,8 @@ var switchThemeButton = (function () {
       var this$1 = this;
 
       this.currentThemeIdx = 0;
+      this.buttonCallback = function () { };
+      this.customButtonCallback = function () { };
       this.states = {
           isCustomTheme: false,
           isSwiping: false,
@@ -50,11 +52,13 @@ var switchThemeButton = (function () {
       this.loadCustomThemeSetting(initArgs.isDefaultCustomTheme);
       // コールバック関数があれば呼び出しておく
       if (initArgs.buttonCallback !== void 0) {
-          initArgs.buttonCallback.call(this);
+          this.buttonCallback = initArgs.buttonCallback.bind(this);
       }
+      this.buttonCallback();
       if (initArgs.customButtonCallback !== void 0) {
-          initArgs.customButtonCallback.call(this);
+          this.customButtonCallback = initArgs.customButtonCallback.bind(this);
       }
+      this.customButtonCallback();
       // テーマ変更ボタンクリック時の処理
       this.buttonEl.addEventListener(DEVICE_CLICK_EVENT_TYPE, function () {
           // buttonElに付与されるクリックイベント内容
@@ -64,10 +68,7 @@ var switchThemeButton = (function () {
           }
           // 適用テーマを変更
           this$1.switchThemeInOrder();
-          // 初期化引数で指定されたコールバック関数が存在するならそれを呼び出す
-          if (typeof initArgs.buttonCallback !== "undefined") {
-              initArgs.buttonCallback.call(this$1);
-          }
+          this$1.buttonCallback();
       });
       // カスタムテーマボタンクリック時の処理
       this.customButtonEl.addEventListener(DEVICE_CLICK_EVENT_TYPE, function () {
@@ -75,9 +76,7 @@ var switchThemeButton = (function () {
               return;
           }
           this$1.isCustomTheme = !this$1.isCustomTheme;
-          if (initArgs.customButtonCallback !== void 0) {
-              initArgs.customButtonCallback.call(this$1);
-          }
+          this$1.customButtonCallback();
       });
       if (IS_EXIST_TOUCH_EVENT) {
           this.appendSwipeValidationEvent();

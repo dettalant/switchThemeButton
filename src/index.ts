@@ -18,6 +18,8 @@ export default class SwitchThemeButton {
   currentThemeIdx: number = 0;
   buttonEl: HTMLElement;
   customButtonEl: HTMLElement;
+  public buttonCallback: Function = () => {};
+  public customButtonCallback: Function = () => {};
   states: SwitchThemeButtonStates = {
     isCustomTheme: false,
     isSwiping: false,
@@ -43,12 +45,15 @@ export default class SwitchThemeButton {
 
     // コールバック関数があれば呼び出しておく
     if (initArgs.buttonCallback !== void 0) {
-      initArgs.buttonCallback.call(this);
+      this.buttonCallback = initArgs.buttonCallback.bind(this);
     }
+    this.buttonCallback();
 
     if (initArgs.customButtonCallback !== void 0) {
-      initArgs.customButtonCallback.call(this);
+      this.customButtonCallback = initArgs.customButtonCallback.bind(this);
     }
+
+    this.customButtonCallback();
 
     // テーマ変更ボタンクリック時の処理
     this.buttonEl.addEventListener(DEVICE_CLICK_EVENT_TYPE, () => {
@@ -61,10 +66,7 @@ export default class SwitchThemeButton {
       // 適用テーマを変更
       this.switchThemeInOrder();
 
-      // 初期化引数で指定されたコールバック関数が存在するならそれを呼び出す
-      if (typeof initArgs.buttonCallback !== "undefined") {
-        initArgs.buttonCallback.call(this);
-      }
+      this.buttonCallback();
     })
 
     // カスタムテーマボタンクリック時の処理
@@ -75,9 +77,7 @@ export default class SwitchThemeButton {
 
       this.isCustomTheme = !this.isCustomTheme;
 
-      if (initArgs.customButtonCallback !== void 0) {
-        initArgs.customButtonCallback.call(this);
-      }
+      this.customButtonCallback();
     })
 
     if (IS_EXIST_TOUCH_EVENT) {
@@ -191,7 +191,7 @@ export default class SwitchThemeButton {
     // カスタムテーマボタンの設定を呼び戻す
     const savedIsCustomTheme = localStorage.getItem(LOCALSTORAGE_CUSTOM_THEME_KEY);
     if (savedIsCustomTheme !== null && savedIsCustomTheme === "true"
-      || savedIsCustomTheme === null && isDefaultCustomTheme  
+      || savedIsCustomTheme === null && isDefaultCustomTheme
     ) {
       this.isCustomTheme = true;
     }
