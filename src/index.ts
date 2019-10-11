@@ -1,28 +1,19 @@
 import { SwitchThemeButtonError } from "./error";
-import { InitArgs } from "./interfaces";
+import { InitArgs, SwitchThemeButtonStates } from "./interfaces";
 
-// PCかスマホかを判定して、クリックイベントタイプを変化させる
-const IS_EXIST_TOUCH_EVENT = window.ontouchstart === null;
-const DEVICE_CLICK_EVENT_TYPE = (IS_EXIST_TOUCH_EVENT) ? "touchend" : "click";
 const LOCALSTORAGE_CURRENT_THEME_KEY = "stb_currentThemeName";
 const LOCALSTORAGE_CUSTOM_THEME_KEY = "stb_isCustomTheme";
 
-interface SwitchThemeButtonStates {
-  isCustomTheme: boolean;
-  isSwiping: boolean;
-}
-
 // 名前そのまま、テーマを変更ボタンのクラス。
 export default class SwitchThemeButton {
-  themeNameArray: string[];
-  currentThemeIdx: number = 0;
-  buttonEl: HTMLElement;
-  customButtonEl: HTMLElement;
+  private themeNameArray: string[];
+  private currentThemeIdx: number = 0;
+  private buttonEl: HTMLElement;
+  private customButtonEl: HTMLElement;
   public buttonCallback: Function = () => {};
   public customButtonCallback: Function = () => {};
-  states: SwitchThemeButtonStates = {
+  private states: SwitchThemeButtonStates = {
     isCustomTheme: false,
-    isSwiping: false,
   };
 
   constructor(initArgs: InitArgs) {
@@ -56,13 +47,7 @@ export default class SwitchThemeButton {
     this.customButtonCallback();
 
     // テーマ変更ボタンクリック時の処理
-    this.buttonEl.addEventListener(DEVICE_CLICK_EVENT_TYPE, () => {
-      // buttonElに付与されるクリックイベント内容
-      // スワイプを行っている場合は早期リターン
-      if (this.states.isSwiping) {
-        return;
-      }
-
+    this.buttonEl.addEventListener("click", () => {
       // 適用テーマを変更
       this.switchThemeInOrder();
 
@@ -70,19 +55,11 @@ export default class SwitchThemeButton {
     })
 
     // カスタムテーマボタンクリック時の処理
-    this.customButtonEl.addEventListener(DEVICE_CLICK_EVENT_TYPE, () => {
-      if (this.states.isSwiping) {
-        return;
-      }
-
+    this.customButtonEl.addEventListener("click", () => {
       this.isCustomTheme = !this.isCustomTheme;
 
       this.customButtonCallback();
     })
-
-    if (IS_EXIST_TOUCH_EVENT) {
-      this.appendSwipeValidationEvent();
-    }
   }
   /**
    * 初期化引数のthemeNameArrayで指定した順番で順繰りにテーマ転換を行う
@@ -114,7 +91,7 @@ export default class SwitchThemeButton {
     }
   }
 
-  get isCustomTheme(): boolean {
+  public get isCustomTheme(): boolean {
     return this.states.isCustomTheme;
   }
 
@@ -122,7 +99,7 @@ export default class SwitchThemeButton {
    * setterを用いて、observeのようなことを行う
    * @param  isCustomTheme カスタムテーマ機能が有効になっているかどうかのbool
    */
-  set isCustomTheme(isCustomTheme: boolean) {
+  public set isCustomTheme(isCustomTheme: boolean) {
     this.states.isCustomTheme = isCustomTheme;
     if (isCustomTheme) {
       document.body.classList.add("is_custom_theme");
@@ -144,7 +121,7 @@ export default class SwitchThemeButton {
    *
    * @param  callback インスタンス生成時に外から渡されたコールバック関数
    */
-  defaultThemeApply() {
+  private defaultThemeApply() {
     // 初期化時に初期テーマを設定する
     const savedCurrentThemeName = window.localStorage.getItem(LOCALSTORAGE_CURRENT_THEME_KEY);
 
@@ -187,7 +164,7 @@ export default class SwitchThemeButton {
     }
   }
 
-  loadCustomThemeSetting(isDefaultCustomTheme?: boolean) {
+  private loadCustomThemeSetting(isDefaultCustomTheme?: boolean) {
     // カスタムテーマボタンの設定を呼び戻す
     const savedIsCustomTheme = localStorage.getItem(LOCALSTORAGE_CUSTOM_THEME_KEY);
     if (savedIsCustomTheme !== null && savedIsCustomTheme === "true"
@@ -200,7 +177,7 @@ export default class SwitchThemeButton {
   /**
    * themeNameArray内の全てのテーマ名をbody要素から除去する
    */
-  removeThemeNameAll() {
+  public removeThemeNameAll() {
     const themeNameArrayLen = this.themeNameArray.length;
 
     for (let i = 0; i < themeNameArrayLen; i++) {
@@ -217,7 +194,7 @@ export default class SwitchThemeButton {
    *
    * @return themeNameArray配列番号または-1
    */
-  getBodyDefaultThemeIdx(): number {
+  public getBodyDefaultThemeIdx(): number {
     let themeIdxNum = -1;
     const themeNameArrayLen = this.themeNameArray.length;
 
@@ -229,28 +206,6 @@ export default class SwitchThemeButton {
     }
 
     return themeIdxNum;
-  }
-
-  /**
-   * swipe時にtouchendをキャンセルする処理のために、
-   * swipeを行っているかを判定するイベントを追加する
-   */
-  appendSwipeValidationEvent() {
-    // スマホ判定を一応行っておく
-    if (IS_EXIST_TOUCH_EVENT) {
-      // touchend指定時の、スワイプ判定追加記述
-      // NOTE: 若干やっつけ気味
-      window.addEventListener("touchstart", () => {
-        this.states.isSwiping = false;
-      });
-
-      window.addEventListener("touchmove", () => {
-        if (!this.states.isSwiping) {
-          // 無意味な上書きは一応避ける
-          this.states.isSwiping = true;
-        }
-      })
-    }
   }
 
   /**

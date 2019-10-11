@@ -15,3 +15,7 @@ export interface InitArgs {
   // カスタムテーマ機能の初期値を設定する
   isDefaultCustomTheme: boolean
 }
+
+export interface SwitchThemeButtonStates {
+  isCustomTheme: boolean;
+}

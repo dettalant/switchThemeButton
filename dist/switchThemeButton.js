@@ -3,7 +3,7 @@
  * See {@link https://github.com/dettalant/switchThemeButton}
  *
  * @author dettalant
- * @version v0.2.1
+ * @version v0.2.2
  * @license MIT License
  */
 var switchThemeButton = (function () {
@@ -17,9 +17,6 @@ var switchThemeButton = (function () {
       return this.name + ": " + this.message;
   };
 
-  // PCかスマホかを判定して、クリックイベントタイプを変化させる
-  var IS_EXIST_TOUCH_EVENT = window.ontouchstart === null;
-  var DEVICE_CLICK_EVENT_TYPE = (IS_EXIST_TOUCH_EVENT) ? "touchend" : "click";
   var LOCALSTORAGE_CURRENT_THEME_KEY = "stb_currentThemeName";
   var LOCALSTORAGE_CUSTOM_THEME_KEY = "stb_isCustomTheme";
   // 名前そのまま、テーマを変更ボタンのクラス。
@@ -31,7 +28,6 @@ var switchThemeButton = (function () {
       this.customButtonCallback = function () { };
       this.states = {
           isCustomTheme: false,
-          isSwiping: false,
       };
       if (typeof initArgs === "undefined") {
           throw new SwitchThemeButtonError("インスタンス生成には初期化引数が必須です");
@@ -60,27 +56,16 @@ var switchThemeButton = (function () {
       }
       this.customButtonCallback();
       // テーマ変更ボタンクリック時の処理
-      this.buttonEl.addEventListener(DEVICE_CLICK_EVENT_TYPE, function () {
-          // buttonElに付与されるクリックイベント内容
-          // スワイプを行っている場合は早期リターン
-          if (this$1.states.isSwiping) {
-              return;
-          }
+      this.buttonEl.addEventListener("click", function () {
           // 適用テーマを変更
           this$1.switchThemeInOrder();
           this$1.buttonCallback();
       });
       // カスタムテーマボタンクリック時の処理
-      this.customButtonEl.addEventListener(DEVICE_CLICK_EVENT_TYPE, function () {
-          if (this$1.states.isSwiping) {
-              return;
-          }
+      this.customButtonEl.addEventListener("click", function () {
           this$1.isCustomTheme = !this$1.isCustomTheme;
           this$1.customButtonCallback();
       });
-      if (IS_EXIST_TOUCH_EVENT) {
-          this.appendSwipeValidationEvent();
-      }
   };
 
   var prototypeAccessors = { isCustomTheme: { configurable: true },currentThemeName: { configurable: true } };
@@ -208,28 +193,6 @@ var switchThemeButton = (function () {
           }
       }
       return themeIdxNum;
-  };
-  /**
-   * swipe時にtouchendをキャンセルする処理のために、
-   * swipeを行っているかを判定するイベントを追加する
-   */
-  SwitchThemeButton.prototype.appendSwipeValidationEvent = function appendSwipeValidationEvent () {
-          var this$1 = this;
-
-      // スマホ判定を一応行っておく
-      if (IS_EXIST_TOUCH_EVENT) {
-          // touchend指定時の、スワイプ判定追加記述
-          // NOTE: 若干やっつけ気味
-          window.addEventListener("touchstart", function () {
-              this$1.states.isSwiping = false;
-          });
-          window.addEventListener("touchmove", function () {
-              if (!this$1.states.isSwiping) {
-                  // 無意味な上書きは一応避ける
-                  this$1.states.isSwiping = true;
-              }
-          });
-      }
   };
   /**
    * 現在のテーマ名を返す
